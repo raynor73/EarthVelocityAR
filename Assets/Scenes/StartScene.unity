@@ -568,6 +568,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   background: {fileID: 1422005906}
   aspectRatioFitter: {fileID: 1422005908}
+  skyTransform: {fileID: 1941239505}
 --- !u!1 &1422005904
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,20 +5,23 @@ using UnityEngine.UI;
 
 public class PhoneCamera : MonoBehaviour {
 
-	private bool mIsCameraAvailable;
+	private Vector3 DOWN = new Vector3(0, -1, 0);
 	private WebCamTexture mBackCamera;
-	private Texture mDefaultBackground;
+	private bool mIsArReady = false;
 
 	public RawImage background;
 	public AspectRatioFitter aspectRatioFitter;
+	public Transform skyTransform;
 
 	void Start () {
-		mDefaultBackground = background.texture;		
+		if (!SystemInfo.supportsAccelerometer) {
+			Debug.Log ("No accelerometer detected");
+			return;
+		}
 
 		WebCamDevice[] cameraDevices = WebCamTexture.devices;
 		if (cameraDevices.Length == 0) {
 			Debug.Log ("No camera devices detected");
-			mIsCameraAvailable = false;
 			return;
 		}
 
@@ -37,11 +40,11 @@ public class PhoneCamera : MonoBehaviour {
 		mBackCamera.Play ();
 		background.texture = mBackCamera;
 
-		mIsCameraAvailable = true;
+		mIsArReady = true;
 	}
 	
 	void Update () {
-		if (!mIsCameraAvailable) {
+		if (!mIsArReady) {
 			return;
 		}
 
@@ -53,5 +56,19 @@ public class PhoneCamera : MonoBehaviour {
 
 		int orient = -mBackCamera.videoRotationAngle;
 		background.rectTransform.localEulerAngles = new Vector3 (0, 0, orient);
+
+		Vector3 accelerationDirectionVector = Vector3.zero;
+		accelerationDirectionVector = Input.acceleration;
+		accelerationDirectionVector.z *= -1;
+		accelerationDirectionVector.Normalize ();
+		skyTransform.localRotation = Quaternion.FromToRotation (DOWN, accelerationDirectionVector);
+
+		//debug.localPosition = accelerationDirectionVector;
+
+		//skyTransform.localRotation = Quaternion.Inverse(GyroToUnity(Input.gyro.attitude));
 	}
+
+	/*private static Quaternion GyroToUnity(Quaternion q) {
+		return new Quaternion(q.x, q.y, -q.z, -q.w);
+	}*/
 }
